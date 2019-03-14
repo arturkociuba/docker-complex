@@ -1,0 +1,19 @@
+sudo: required
+services:
+  - docker
+before_install:
+  - docker build -t local_react_tests -f ./client/Dockerfile.dev ./client
+script:
+  - echo thats all folks
+  - docker run local_react_tests npm run test -- --coverage
+after_success:
+  - docker build -t arturkociuba/complex-client ./client
+  - docker build -t arturkociuba/complex-server ./server
+  - docker build -t arturkociuba/complex-nginx ./nginx
+  - docker build -t arturkociuba/complex-worker ./worker
+  #login to docker
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  - docker push arturkociuba/complex-client
+  - docker push arturkociuba/complex-server
+  - docker push arturkociuba/complex-nginx
+  - docker push arturkociuba/complex-worker
